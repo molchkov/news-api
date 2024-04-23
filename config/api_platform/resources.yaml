@@ -1,0 +1,113 @@
+properties:
+  App\Entity\News:
+    parent:
+      readableLink: false
+      writableLink: false
+
+resources:
+  App\Entity\User:
+    operations:
+      ApiPlatform\Metadata\GetCollection:
+        validationContext:
+          groups: [ 'User:GetCollection' ]
+      ApiPlatform\Metadata\Get:
+        validationContext:
+          groups: [ 'User:Get' ]
+      ApiPlatform\Metadata\Post:
+        processor: App\State\UserPasswordHasher
+        security: 'is_granted("ROLE_ADMIN")'
+        validationContext:
+          groups: [ 'User:Post' ]
+      ApiPlatform\Metadata\Patch:
+        processor: App\State\UserPasswordHasher
+        security: 'is_granted("ROLE_ADMIN")'
+        validationContext:
+          groups: [ 'User:Patch' ]
+      ApiPlatform\Metadata\Delete:
+        security: 'is_granted("ROLE_ADMIN")'
+    normalizationContext:
+      groups: ['User:Get', 'User:GetCollection']
+    denormalizationContext:
+      groups: ['User:Post', 'User:Patch']
+
+  App\Entity\News:
+    operations:
+      ApiPlatform\Metadata\GetCollection:
+        validationContext:
+          groups: [ 'News:GetCollection' ]
+        paginationEnabled: true
+        paginationItemsPerPage: 20
+        filters: [ 'news.order_filter', 'news.search_filter']
+      ApiPlatform\Metadata\Get:
+        validationContext:
+          groups: [ 'News:Get' ]
+      ApiPlatform\Metadata\Post:
+        security: 'is_granted("ROLE_ADMIN")'
+        validationContext:
+          groups: [ 'News:Post' ]
+      ApiPlatform\Metadata\Patch:
+        validationContext:
+          groups: [ 'News:Patch' ]
+      ApiPlatform\Metadata\Delete:
+        security: 'is_granted("ROLE_ADMIN")'
+    normalizationContext:
+      groups: ['News:Get', 'News:GetCollection']
+    denormalizationContext:
+      groups: ['News:Post', 'News:Patch']
+
+  App\Entity\Tag:
+    operations:
+      ApiPlatform\Metadata\GetCollection:
+        validationContext:
+          groups: [ 'Tag:GetCollection' ]
+        paginationEnabled: true
+        paginationItemsPerPage: 20
+        filters: [ 'tag.order_filter' ]
+      ApiPlatform\Metadata\Get:
+        validationContext:
+          groups: [ 'Tag:Get' ]
+      ApiPlatform\Metadata\Post:
+        security: 'is_granted("ROLE_ADMIN")'
+        validationContext:
+          groups: [ 'Tag:Post' ]
+      ApiPlatform\Metadata\Patch:
+        security: 'is_granted("ROLE_ADMIN")'
+        validationContext:
+          groups: [ 'Tag:Patch' ]
+      ApiPlatform\Metadata\Delete:
+        security: 'is_granted("ROLE_ADMIN")'
+    normalizationContext:
+      groups: [ 'Tag:Get', 'Tag:GetCollection' ]
+    denormalizationContext:
+      groups: [ 'Tag:Post', 'Tag:Patch' ]
+
+  App\Entity\File:
+    operations:
+      ApiPlatform\Metadata\GetCollection:
+        validationContext:
+          groups: [ 'File:GetCollection' ]
+        paginationEnabled: true
+        paginationItemsPerPage: 20
+        filters: [ 'file.order_filter' ]
+      ApiPlatform\Metadata\Post:
+        controller: App\Controller\UploadFileAction
+        deserialize: false
+        security: 'is_granted("ROLE_ADMIN")'
+        validationContext:
+          groups: [ 'File:Post' ]
+        openapi:
+          requestBody:
+            content:
+              multipart/form-data:
+                schema:
+                  type: object
+                  properties:
+                    file:
+                      type: string
+                      format: binary
+    ApiPlatform\Metadata\Delete:
+      security: 'is_granted("ROLE_ADMIN")'
+    normalizationContext:
+      groups: [ 'File:Get', 'File:GetCollection' ]
+    denormalizationContext:
+      groups: [ 'File:Post', 'File:Patch' ]
